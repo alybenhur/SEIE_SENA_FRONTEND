@@ -1,9 +1,7 @@
 import { useAuthStore } from '~/stores/auth'
 
 export default defineNuxtRouteMiddleware((to) => {
-  // Pinia v3: en middleware (fuera de componente) se debe pasar $pinia explícitamente
-  const { $pinia } = useNuxtApp()
-  const store = useAuthStore($pinia)
+  const store = useAuthStore()
 
   // Public routes — no auth needed
   const publicRoutes = ['/', '/login', '/registro', '/certificados/verificar', '/olvide-password', '/restablecer-password']
