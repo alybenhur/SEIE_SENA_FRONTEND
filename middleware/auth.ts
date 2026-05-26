@@ -8,7 +8,7 @@ export default defineNuxtRouteMiddleware((to) => {
   if (publicRoutes.some((r) => to.path === r || (r !== '/' && to.path.startsWith(r)))) return
 
   // Not authenticated → login
-  if (!store.isAuthenticated) {
+  if (store.isAuthenticated !== true) {
     return navigateTo('/login')
   }
 
