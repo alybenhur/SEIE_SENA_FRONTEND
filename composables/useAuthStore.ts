@@ -39,7 +39,10 @@ export function useAuthStore() {
     if (import.meta.client) localStorage.removeItem('token')
   }
 
-  return { token, user, isAuthenticated, isAdmin, isCoordinador, isEvaluador, rol, init, setToken, logout }
+  // reactive() desempaqueta automáticamente todos los Refs/ComputedRefs internos,
+  // igual que Pinia. Esto hace que store.token, store.rol, store.isAuthenticated, etc.
+  // devuelvan el VALOR directo tanto en templates como en código script/middleware.
+  return reactive({ token, user, isAuthenticated, isAdmin, isCoordinador, isEvaluador, rol, init, setToken, logout })
 }
 
 function decodeToken(token: string): AuthUser | null {

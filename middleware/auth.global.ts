@@ -14,7 +14,6 @@ export default defineNuxtRouteMiddleware((to) => {
   const requiredRoles = to.meta.roles as string[] | undefined
   if (requiredRoles && requiredRoles.length > 0) {
     if (!requiredRoles.includes(store.rol ?? '')) {
-      // Redirect to their own dashboard
       const dashboards: Record<string, string> = {
         admin: '/admin/dashboard',
         coordinador: '/coordinador/registros',
