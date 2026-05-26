@@ -1,5 +1,3 @@
-import { useAuthStore } from '~/stores/auth'
-
 export function useApi() {
   const config = useRuntimeConfig()
   const base = config.public.apiBase
