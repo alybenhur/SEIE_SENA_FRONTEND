@@ -10,9 +10,6 @@
   tailwindcss: {
     cssPath: '~/assets/css/main.css',
   },
-  router: {
-    middleware: ['auth'],
-  },
   app: {
     head: {
       link: [
