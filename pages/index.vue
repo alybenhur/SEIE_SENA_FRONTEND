@@ -145,11 +145,17 @@ const config = useRuntimeConfig()
 const eventoActivo = ref<any>(null)
 const cargado = ref(false)
 
+// Las fechas del backend llegan como "YYYY-MM-DD" (UTC medianoche).
+// Sin corrección, en UTC-5 (Colombia) se mostraría el día anterior.
+// Anclar al mediodía evita el desfase sin importar la zona horaria del usuario.
+const parseFecha = (f: string): Date =>
+  f.includes('T') ? new Date(f) : new Date(f + 'T12:00:00')
+
 const formatFecha = (f: string) =>
-  f ? new Date(f).toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' }) : ''
+  f ? parseFecha(f).toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' }) : ''
 
 const formatFechaLarga = (f: string) =>
-  f ? new Date(f).toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' }) : ''
+  f ? parseFecha(f).toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' }) : ''
 
 onMounted(async () => {
   try {

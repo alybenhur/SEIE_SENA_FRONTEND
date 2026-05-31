@@ -115,7 +115,8 @@ const tiposLabel: Record<string, string> = { participacion: 'Participacion', eva
 const tiposColor: Record<string, string> = { participacion: '#0d9488', evaluador: '#2563eb', ponente: '#7c3aed', mejor_proyecto: '#ea580c' }
 const labelTipo = (t: string) => tiposLabel[t] || t
 const colorTipo = (t: string) => tiposColor[t] || '#64748b'
-const formatFecha = (f: string) => f ? new Date(f).toLocaleDateString('es-CO') : ''
+const parseFecha = (f: string) => f.includes('T') ? new Date(f) : new Date(f + 'T12:00:00')
+const formatFecha = (f: string) => f ? parseFecha(f).toLocaleDateString('es-CO') : ''
 
 async function cargar() {
   const params = new URLSearchParams()
