@@ -145,11 +145,10 @@ const config = useRuntimeConfig()
 const eventoActivo = ref<any>(null)
 const cargado = ref(false)
 
-// Las fechas del backend llegan como "YYYY-MM-DD" (UTC medianoche).
-// Sin corrección, en UTC-5 (Colombia) se mostraría el día anterior.
-// Anclar al mediodía evita el desfase sin importar la zona horaria del usuario.
-const parseFecha = (f: string): Date =>
-  f.includes('T') ? new Date(f) : new Date(f + 'T12:00:00')
+// MongoDB devuelve "2026-07-21T00:00:00.000+00:00" (UTC medianoche).
+// En Colombia (UTC-5) new Date() lo convierte a 2026-07-20T19:00 → día anterior.
+// Solución: tomar solo YYYY-MM-DD y anclar al mediodía local.
+const parseFecha = (f: string): Date => new Date(f.substring(0, 10) + 'T12:00:00')
 
 const formatFecha = (f: string) =>
   f ? parseFecha(f).toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' }) : ''

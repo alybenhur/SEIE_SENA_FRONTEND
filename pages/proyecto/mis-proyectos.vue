@@ -38,7 +38,7 @@ const proyectos = ref([])
 const tipoClass = (t) => t === 'investigacion' ? 'bg-teal-100 text-teal-700' : 'bg-orange-100 text-orange-700'
 const estadoClasses = { enviado: 'bg-yellow-100 text-yellow-700', en_evaluacion: 'bg-blue-100 text-blue-700', evaluado: 'bg-purple-100 text-purple-700', aprobado: 'bg-green-100 text-green-700', rechazado: 'bg-red-100 text-red-700' }
 const estadoClass = (e) => estadoClasses[e] || 'bg-gray-100 text-gray-500'
-const parseFecha = (f: string) => f.includes('T') ? new Date(f) : new Date(f + 'T12:00:00')
+const parseFecha = (f: string) => new Date(f.substring(0, 10) + 'T12:00:00')
 const formatFecha = (f) => f ? parseFecha(f).toLocaleDateString('es-CO') : ''
 onMounted(async () => {
   if (!localStorage.getItem('token')) { navigateTo('/login'); return }

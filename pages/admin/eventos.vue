@@ -231,7 +231,7 @@ async function cambiarEstado(id: string, estado: string) {
   await cargar()
 }
 
-const parseFecha = (f: string) => f.includes('T') ? new Date(f) : new Date(f + 'T12:00:00')
+const parseFecha = (f: string) => new Date(f.substring(0, 10) + 'T12:00:00')
 const formatFecha = (f: string) => f ? parseFecha(f).toLocaleDateString('es-CO') : '—'
 const toInputDate = (f: string) => f ? new Date(f).toISOString().split('T')[0] : ''
 

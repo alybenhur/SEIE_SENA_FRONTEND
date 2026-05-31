@@ -437,7 +437,7 @@ const badgeEstadoHeader = (e: string) => ({
   rechazado: 'bg-red-400/20 text-red-200 border-red-400/30',
 }[e] ?? 'bg-white/10 text-white/60 border-white/20')
 
-const parseFecha = (f: string) => f.includes('T') ? new Date(f) : new Date(f + 'T12:00:00')
+const parseFecha = (f: string) => new Date(f.substring(0, 10) + 'T12:00:00')
 const formatFecha = (f: string) => f ? parseFecha(f).toLocaleDateString('es-CO') : '—'
 
 async function cargar() {
