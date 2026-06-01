@@ -7,7 +7,7 @@
 
         <!-- Logo + nombre -->
         <div class="flex items-center gap-3 flex-shrink-0">
-          <img src="/logoaplicacion.png" alt="SIGIEM" class="h-12 w-auto" />
+          <img src="/logosena.png" alt="SIGIEM" class="h-12 w-auto" />
           <div>
             <p class="font-bold text-teal-700 leading-tight text-base tracking-wide">SEIE</p>
             <p class="text-[10px] text-gray-600 leading-tight max-w-[180px] uppercase font-medium tracking-wide">Sistema de eventos de investigación y emprendimiento</p>

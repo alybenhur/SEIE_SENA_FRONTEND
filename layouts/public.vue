@@ -35,7 +35,7 @@
 
         <!-- Logo -->
         <NuxtLink to="/" class="flex items-center gap-2.5">
-          <img src="/logoaplicacion.png" alt="SEIE" class="h-8 w-auto" />
+          <img src="/logosena.png" alt="SEIE" class="h-8 w-auto" />
           <div>
             <p class="text-sm font-bold text-white leading-tight tracking-wide">SEIE</p>
             <p class="text-[9px] text-green-200 leading-tight uppercase font-medium tracking-widest">

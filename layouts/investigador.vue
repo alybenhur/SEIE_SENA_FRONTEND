@@ -3,7 +3,7 @@
     <header class="relative z-10 px-6 py-3 flex items-center justify-between shadow-md"
       style="background: linear-gradient(90deg, #1a1a1a 0%, #00693e 50%, #004d2c 100%)">
       <div class="flex items-center gap-3">
-        <img src="/logoaplicacion.png" alt="SEIE" class="h-8 w-auto brightness-0 invert" />
+        <img src="/logosena.png" alt="SEIE" class="h-8 w-auto brightness-0 invert" />
         <div>
           <p class="font-semibold text-sm leading-tight text-white">Portal Investigador</p>
           <p class="text-green-300 text-xs leading-tight">{{ store.user?.nombreCompleto || store.user?.email }}</p>
