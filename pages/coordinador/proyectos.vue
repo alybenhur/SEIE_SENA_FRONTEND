@@ -45,6 +45,15 @@
           <option value="evaluado">Evaluados</option>
           <option value="aprobado">Aprobados</option>
         </select>
+        <button @click="descargarExcel" :disabled="!proyectosFiltrados.length"
+          class="inline-flex items-center gap-1.5 text-sm font-semibold text-white px-3 py-2 rounded-lg transition-colors disabled:opacity-50 hover:brightness-95"
+          style="background: linear-gradient(90deg,#1e5c2a,#2d8a3e)"
+          title="Descargar en Excel los proyectos del filtro actual">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+          </svg>
+          Descargar Excel
+        </button>
       </div>
     </div>
 
@@ -403,6 +412,39 @@ function autoresDe(p: any): string {
     : [p.autorRef?.nombreCompleto]
   ).filter(Boolean)
   return nombres.length ? nombres.join(', ') : '—'
+}
+
+// Instructor del proyecto (docente en autoresDocentes)
+function instructorDe(p: any): string {
+  const nombres = (p.autoresDocentes ?? []).map((a: any) => a?.nombreCompleto).filter(Boolean)
+  return nombres.length ? nombres.join(', ') : '—'
+}
+
+// Exporta a Excel los proyectos del filtro actual (respeta el filtro por tipo)
+async function descargarExcel() {
+  if (!proyectosFiltrados.value.length) return
+  const XLSX = await import('xlsx')
+  const limpiar = (s: string) => (s && s !== '—' ? s : '')
+
+  const filas = proyectosFiltrados.value.map((p, i) => ({
+    'N°': i + 1,
+    'Nombre del proyecto': p.titulo || '',
+    'Tipo de proyecto': modalidadLabels[p.modalidadParticipacion] || 'Sin asignar',
+    'Línea de investigación': limpiar(p.lineaInvestigacion),
+    'Regional': limpiar(p.regional),
+    'Instructor': limpiar(instructorDe(p)),
+    'Autores': limpiar(autoresDe(p)),
+  }))
+
+  const ws = XLSX.utils.json_to_sheet(filas)
+  ws['!cols'] = [{ wch: 5 }, { wch: 55 }, { wch: 22 }, { wch: 26 }, { wch: 18 }, { wch: 30 }, { wch: 45 }]
+  const wb = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(wb, ws, 'Proyectos')
+
+  const sufijo = filtroModalidad.value
+    ? (filtroModalidad.value === 'sin' ? 'Sin asignar' : (modalidadLabels[filtroModalidad.value] || filtroModalidad.value))
+    : 'Todos'
+  XLSX.writeFile(wb, `Proyectos - ${sufijo}.xlsx`)
 }
 
 function toggleDetalle(id: string) {
