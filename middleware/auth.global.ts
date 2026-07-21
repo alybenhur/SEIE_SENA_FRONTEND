@@ -10,6 +10,11 @@ export default defineNuxtRouteMiddleware((to) => {
     return navigateTo('/login')
   }
 
+  // Primer login — forzar cambio de contraseña
+  if (store.mustChangePassword && to.path !== '/cambiar-password') {
+    return navigateTo('/cambiar-password')
+  }
+
   // Check role restrictions declared in definePageMeta({ roles: [...] })
   const requiredRoles = to.meta.roles as string[] | undefined
   if (requiredRoles && requiredRoles.length > 0) {

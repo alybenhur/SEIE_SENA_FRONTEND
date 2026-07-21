@@ -5,12 +5,14 @@ export interface AuthUser {
   email: string
   rol: string
   nombreCompleto: string
+  mustChangePassword?: boolean
 }
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     token: null as string | null,
     user: null as AuthUser | null,
+    mustChangePassword: false,
   }),
 
   getters: {
@@ -32,9 +34,10 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    setToken(token: string) {
+    setToken(token: string, mustChange = false) {
       this.token = token
       this.user = decodeToken(token)
+      this.mustChangePassword = mustChange || !!(this.user?.mustChangePassword)
       if (import.meta.client) {
         localStorage.setItem('token', token)
       }
@@ -43,6 +46,7 @@ export const useAuthStore = defineStore('auth', {
     logout() {
       this.token = null
       this.user = null
+      this.mustChangePassword = false
       if (import.meta.client) {
         localStorage.removeItem('token')
       }
@@ -59,6 +63,7 @@ function decodeToken(token: string): AuthUser | null {
       email: decoded.email,
       rol: decoded.rol,
       nombreCompleto: decoded.nombreCompleto ?? '',
+      mustChangePassword: !!decoded.mustChangePassword,
     }
   } catch {
     return null

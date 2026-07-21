@@ -153,9 +153,13 @@ async function enviar() {
   cargando.value = true
   error.value = ''
   try {
-    const res = await post<{ access_token: string }>('/auth/login', { email: email.value, password: password.value })
-    store.setToken(res.access_token)
-    navigateTo(dashboards[store.rol ?? ''] ?? '/login')
+    const res = await post<{ access_token: string; mustChangePassword: boolean }>('/auth/login', { email: email.value, password: password.value })
+    store.setToken(res.access_token, res.mustChangePassword)
+    if (res.mustChangePassword) {
+      navigateTo('/cambiar-password')
+    } else {
+      navigateTo(dashboards[store.rol ?? ''] ?? '/login')
+    }
   } catch (e: any) {
     error.value = e?.data?.message || 'Credenciales incorrectas'
   } finally {
