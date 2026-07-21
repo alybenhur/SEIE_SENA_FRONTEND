@@ -31,6 +31,7 @@
           <option value="poster">Póster o Cartel</option>
           <option value="poster_prototipo">Póster y Prototipo</option>
           <option value="ponencia">Conferencia o Ponencia</option>
+          <option value="sin">Sin asignar</option>
         </select>
         <select v-model="filtroEstado"
           class="text-sm border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-green-300">
@@ -45,6 +46,17 @@
           <option value="aprobado">Aprobados</option>
         </select>
       </div>
+    </div>
+
+    <!-- Contador de trabajos por modalidad -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+      <button v-for="m in resumenModalidad" :key="m.key || 'sin'"
+        @click="filtroModalidad = filtroModalidad === m.key ? '' : m.key"
+        :class="filtroModalidad === m.key ? 'ring-2 ring-green-400 border-green-300' : 'border-gray-200 hover:border-green-200'"
+        class="text-left bg-white rounded-2xl border shadow-sm px-4 py-3 transition-all">
+        <p class="text-3xl font-black leading-none" :class="m.color">{{ m.count }}</p>
+        <p class="text-xs font-medium text-gray-500 mt-1.5">{{ m.label }}</p>
+      </button>
     </div>
 
     <!-- Sin resultados -->
@@ -353,12 +365,35 @@ const estadoHeaderColors: Record<string, string> = {
 }
 const estadoHeaderClass = (e: string) => estadoHeaderColors[e] || 'bg-white/10 text-white/60 border-white/20'
 
+const coincideModalidad = (p: any) => {
+  if (!filtroModalidad.value) return true
+  if (filtroModalidad.value === 'sin') return !p.modalidadParticipacion
+  return p.modalidadParticipacion === filtroModalidad.value
+}
+
 const proyectosFiltrados = computed(() =>
   proyectos.value.filter(p =>
-    (!filtroEstado.value || p.estado === filtroEstado.value) &&
-    (!filtroModalidad.value || p.modalidadParticipacion === filtroModalidad.value)
+    (!filtroEstado.value || p.estado === filtroEstado.value) && coincideModalidad(p)
   )
 )
+
+// Contador de trabajos por modalidad (sobre el total, no sobre el filtro)
+const conteoModalidad = computed(() => {
+  const c: Record<string, number> = { poster: 0, poster_prototipo: 0, ponencia: 0, sin: 0 }
+  for (const p of proyectos.value) {
+    const m = p.modalidadParticipacion
+    if (m === 'poster' || m === 'poster_prototipo' || m === 'ponencia') c[m]++
+    else c.sin++
+  }
+  return c
+})
+
+const resumenModalidad = computed(() => [
+  { key: 'poster',           label: 'Póster o Cartel',        count: conteoModalidad.value.poster,           color: 'text-sky-600' },
+  { key: 'poster_prototipo', label: 'Póster y Prototipo',     count: conteoModalidad.value.poster_prototipo, color: 'text-indigo-600' },
+  { key: 'ponencia',         label: 'Conferencia o Ponencia', count: conteoModalidad.value.ponencia,         color: 'text-emerald-600' },
+  { key: 'sin',              label: 'Sin asignar',            count: conteoModalidad.value.sin,              color: 'text-gray-400' },
+])
 
 function toggleDetalle(id: string) {
   detalleAbierto.value = detalleAbierto.value === id ? null : id
