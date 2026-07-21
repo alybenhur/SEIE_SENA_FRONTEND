@@ -30,6 +30,8 @@ export const useAuthStore = defineStore('auth', {
         if (token) {
           this.token = token
           this.user = decodeToken(token)
+          // Restaurar el flag: si el correo aún es temporal, forzar el cambio
+          this.mustChangePassword = !!this.user?.mustChangePassword
         }
       }
     },
@@ -54,16 +56,24 @@ export const useAuthStore = defineStore('auth', {
   },
 })
 
+// Correo temporal generado en la carga masiva: {cedula}@seie.sena.edu.co
+function esCorreoTemporal(email?: string): boolean {
+  if (!email) return false
+  return /^\d+@seie\.sena\.edu\.co$/i.test(email.trim())
+}
+
 function decodeToken(token: string): AuthUser | null {
   try {
     const payload = token.split('.')[1]
     const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')))
+    const email = decoded.email ?? ''
     return {
       userId: decoded.sub,
-      email: decoded.email,
+      email,
       rol: decoded.rol,
       nombreCompleto: decoded.nombreCompleto ?? '',
-      mustChangePassword: !!decoded.mustChangePassword,
+      // Forzar el cambio si el token lo indica O si el correo sigue el patrón temporal
+      mustChangePassword: !!decoded.mustChangePassword || esCorreoTemporal(email),
     }
   } catch {
     return null
