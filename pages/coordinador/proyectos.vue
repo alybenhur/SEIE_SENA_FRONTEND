@@ -110,8 +110,8 @@
                 <span class="text-gray-700 font-medium">{{ p.institucion || '—' }}</span>
               </div>
               <div class="flex gap-2">
-                <span class="text-gray-400 w-28 shrink-0">Autor</span>
-                <span class="text-gray-700 font-medium">{{ p.autorRef?.nombreCompleto || '—' }}</span>
+                <span class="text-gray-400 w-28 shrink-0">Autores</span>
+                <span class="text-gray-700 font-medium">{{ autoresDe(p) }}</span>
               </div>
               <div class="flex gap-2">
                 <span class="text-gray-400 w-28 shrink-0">Modalidad</span>
@@ -394,6 +394,16 @@ const resumenModalidad = computed(() => [
   { key: 'ponencia',         label: 'Conferencia o Ponencia', count: conteoModalidad.value.ponencia,         color: 'text-emerald-600' },
   { key: 'sin',              label: 'Sin asignar',            count: conteoModalidad.value.sin,              color: 'text-gray-400' },
 ])
+
+// Lista de autores del proyecto (aprendices en autoresPrincipales; si no hay,
+// cae al autor referenciado). Devuelve los nombres separados por coma.
+function autoresDe(p: any): string {
+  const nombres = (p.autoresPrincipales?.length
+    ? p.autoresPrincipales.map((a: any) => a?.nombreCompleto)
+    : [p.autorRef?.nombreCompleto]
+  ).filter(Boolean)
+  return nombres.length ? nombres.join(', ') : '—'
+}
 
 function toggleDetalle(id: string) {
   detalleAbierto.value = detalleAbierto.value === id ? null : id
