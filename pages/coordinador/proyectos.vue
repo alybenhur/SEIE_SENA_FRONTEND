@@ -24,18 +24,27 @@
         </p>
         <p v-else class="text-sm text-red-500 mt-0.5">⚠ No tienes un evento asignado.</p>
       </div>
-      <select v-model="filtroEstado"
-        class="text-sm border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-green-300">
-        <option value="">Todos los estados</option>
-        <option value="enviado">Enviados</option>
-        <option value="aceptado">Aceptados</option>
-        <option value="rechazado">Rechazados</option>
-        <option value="evaluador_asignado">Evaluador asignado</option>
-        <option value="sustentando">Sustentando</option>
-        <option value="en_evaluacion">En evaluación</option>
-        <option value="evaluado">Evaluados</option>
-        <option value="aprobado">Aprobados</option>
-      </select>
+      <div class="flex flex-wrap items-center gap-2">
+        <select v-model="filtroModalidad"
+          class="text-sm border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-green-300">
+          <option value="">Todas las modalidades</option>
+          <option value="poster">Póster o Cartel</option>
+          <option value="poster_prototipo">Póster y Prototipo</option>
+          <option value="ponencia">Conferencia o Ponencia</option>
+        </select>
+        <select v-model="filtroEstado"
+          class="text-sm border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-green-300">
+          <option value="">Todos los estados</option>
+          <option value="enviado">Enviados</option>
+          <option value="aceptado">Aceptados</option>
+          <option value="rechazado">Rechazados</option>
+          <option value="evaluador_asignado">Evaluador asignado</option>
+          <option value="sustentando">Sustentando</option>
+          <option value="en_evaluacion">En evaluación</option>
+          <option value="evaluado">Evaluados</option>
+          <option value="aprobado">Aprobados</option>
+        </select>
+      </div>
     </div>
 
     <!-- Sin resultados -->
@@ -85,31 +94,27 @@
 
             <div class="data-box grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
               <div class="flex gap-2">
-                <span class="text-gray-400 w-24 shrink-0">Institución</span>
+                <span class="text-gray-400 w-28 shrink-0">Institución</span>
                 <span class="text-gray-700 font-medium">{{ p.institucion || '—' }}</span>
               </div>
               <div class="flex gap-2">
-                <span class="text-gray-400 w-24 shrink-0">Autor</span>
+                <span class="text-gray-400 w-28 shrink-0">Autor</span>
                 <span class="text-gray-700 font-medium">{{ p.autorRef?.nombreCompleto || '—' }}</span>
               </div>
               <div class="flex gap-2">
-                <span class="text-gray-400 w-24 shrink-0">Área</span>
-                <span class="text-gray-700 font-medium">{{ p.area || '—' }}</span>
+                <span class="text-gray-400 w-28 shrink-0">Modalidad</span>
+                <span class="text-gray-700 font-medium">{{ modalidadLabels[p.modalidadParticipacion] || '—' }}</span>
               </div>
               <div class="flex gap-2">
-                <span class="text-gray-400 w-24 shrink-0">Categoría</span>
-                <span class="text-gray-700 font-medium capitalize">{{ p.categoria?.replace('_', ' ') || '—' }}</span>
+                <span class="text-gray-400 w-28 shrink-0">Línea de investigación</span>
+                <span class="text-gray-700 font-medium">{{ p.lineaInvestigacion || '—' }}</span>
               </div>
               <div class="flex gap-2">
-                <span class="text-gray-400 w-24 shrink-0">Semillero</span>
-                <span class="text-gray-700 font-medium">{{ p.semilleroNombre || '—' }}</span>
-              </div>
-              <div class="flex gap-2">
-                <span class="text-gray-400 w-24 shrink-0">Depto / Mpio</span>
-                <span class="text-gray-700 font-medium">{{ [p.departamento, p.municipio].filter(Boolean).join(' / ') || '—' }}</span>
+                <span class="text-gray-400 w-28 shrink-0">Regional</span>
+                <span class="text-gray-700 font-medium">{{ p.regional || '—' }}</span>
               </div>
               <div v-if="p.evaluadorRef" class="flex gap-2 sm:col-span-2">
-                <span class="text-gray-400 w-24 shrink-0">Evaluador</span>
+                <span class="text-gray-400 w-28 shrink-0">Evaluador</span>
                 <span class="text-gray-700 font-medium">{{ p.evaluadorRef?.nombreCompleto || '—' }}</span>
               </div>
             </div>
@@ -315,6 +320,13 @@ const { get, patch } = useApi()
 const proyectos = ref<any[]>([])
 const miEvento = ref<any>(null)
 const filtroEstado = ref('enviado')
+const filtroModalidad = ref('')
+
+const modalidadLabels: Record<string, string> = {
+  poster: 'Póster o Cartel',
+  poster_prototipo: 'Póster y Prototipo',
+  ponencia: 'Conferencia o Ponencia',
+}
 const cargando = ref(true)
 const errorCarga = ref('')
 const debugInfo = ref('')
@@ -341,10 +353,12 @@ const estadoHeaderColors: Record<string, string> = {
 }
 const estadoHeaderClass = (e: string) => estadoHeaderColors[e] || 'bg-white/10 text-white/60 border-white/20'
 
-const proyectosFiltrados = computed(() => {
-  if (!filtroEstado.value) return proyectos.value
-  return proyectos.value.filter(p => p.estado === filtroEstado.value)
-})
+const proyectosFiltrados = computed(() =>
+  proyectos.value.filter(p =>
+    (!filtroEstado.value || p.estado === filtroEstado.value) &&
+    (!filtroModalidad.value || p.modalidadParticipacion === filtroModalidad.value)
+  )
+)
 
 function toggleDetalle(id: string) {
   detalleAbierto.value = detalleAbierto.value === id ? null : id
