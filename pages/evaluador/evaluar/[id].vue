@@ -23,6 +23,10 @@
             <div class="flex flex-wrap items-center gap-2 mt-1">
               <span :class="proyecto.tipo === 'investigacion' ? 'bg-teal-100 text-teal-700' : 'bg-orange-100 text-orange-700'"
                 class="px-2 py-0.5 rounded-full text-xs font-medium capitalize">{{ proyecto.tipo }}</span>
+              <span v-if="proyecto.modalidadParticipacion"
+                class="px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700">
+                {{ modalidadLabels[proyecto.modalidadParticipacion] || proyecto.modalidadParticipacion }}
+              </span>
               <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-sky-100 text-sky-700">
                 {{ proyecto.eventoRef?.nombre || '—' }}
               </span>
@@ -73,8 +77,18 @@
       <!-- Rúbrica -->
       <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mb-5">
         <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
-          <h3 class="text-base font-bold text-gray-800">Rúbrica de evaluación</h3>
+          <h3 class="text-base font-bold text-gray-800">
+            Rúbrica de evaluación<span v-if="rubrica"> · {{ rubrica.nombre }}</span>
+          </h3>
           <p class="text-xs text-gray-500 mt-0.5">Cada criterio se califica de 0 a 20 puntos. Puntaje máximo total: 100.</p>
+        </div>
+
+        <!-- Aviso: modalidad no asignada -->
+        <div v-if="!modalidadAsignada" class="mx-6 mt-4 flex items-start gap-2 px-4 py-3 rounded-xl bg-amber-50 border border-amber-200 text-sm text-amber-700">
+          <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+          </svg>
+          <span>Este proyecto aún no tiene una <strong>modalidad de participación</strong> asignada. Se muestra la rúbrica base de Póster; el coordinador debe asignar la modalidad correcta para aplicar la rúbrica oficial.</span>
         </div>
 
         <div class="px-6 py-4 space-y-4">
@@ -183,13 +197,33 @@ const observacionGeneral = ref('')
 const recomendaciones = ref('')
 const verResumen = ref(false)
 
-const criterios = ref([
-  { nombre: 'Pertinencia y relevancia',  descripcion: 'El proyecto aborda una problemática relevante para el contexto regional o nacional.', puntaje: 0, observacion: '' },
-  { nombre: 'Claridad y coherencia',     descripcion: 'Los objetivos, metodología y resultados esperados son claros y coherentes entre sí.', puntaje: 0, observacion: '' },
-  { nombre: 'Rigor metodológico',        descripcion: 'La metodología es apropiada para los objetivos planteados y se describe con detalle.', puntaje: 0, observacion: '' },
-  { nombre: 'Innovación y originalidad', descripcion: 'El proyecto aporta elementos nuevos o innovadores en su campo de acción.', puntaje: 0, observacion: '' },
-  { nombre: 'Impacto y viabilidad',      descripcion: 'El proyecto tiene potencial de impacto y es viable de ejecutar.', puntaje: 0, observacion: '' },
-])
+interface CriterioEval { nombre: string; descripcion: string; puntaje: number; observacion: string }
+
+const rubrica = ref<any>(null)
+const criterios = ref<CriterioEval[]>([])
+const modalidadAsignada = ref(true)
+
+const modalidadLabels: Record<string, string> = {
+  poster: 'Póster o Cartel',
+  poster_prototipo: 'Póster y Prototipo',
+  ponencia: 'Conferencia o Ponencia',
+}
+
+// Carga la rúbrica oficial según la modalidad del proyecto.
+// Si el proyecto aún no tiene modalidad asignada, usa la rúbrica base de Póster
+// y muestra un aviso.
+async function cargarRubrica(modalidad?: string) {
+  modalidadAsignada.value = !!modalidad
+  const mod = modalidad || 'poster'
+  const r = await get<any>(`/rubricas/${mod}`)
+  rubrica.value = r
+  criterios.value = (r.criterios || []).map((c: any) => ({
+    nombre: c.nombre,
+    descripcion: c.descripcion,
+    puntaje: 0,
+    observacion: '',
+  }))
+}
 
 const puntajeTotal = computed(() => criterios.value.reduce((s, c) => s + (c.puntaje || 0), 0))
 
@@ -223,6 +257,7 @@ onMounted(async () => {
   if (!localStorage.getItem('token')) { navigateTo('/login'); return }
   try {
     proyecto.value = await get<any>(`/proyectos/${proyectoId}`)
+    await cargarRubrica(proyecto.value?.modalidadParticipacion)
   } catch {
     navigateTo('/evaluador/mis-asignaciones')
   } finally {
