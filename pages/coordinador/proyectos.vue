@@ -561,12 +561,13 @@ async function descargarExcel() {
     'Instructor': limpiar(instructorDe(p)),
     'Autores': limpiar(autoresDe(p)),
     'Evaluador': p.evaluadorRef?.nombreCompleto || 'Sin asignar',
+    'Celular evaluador': limpiar(p.evaluadorRef?.whatsappTelefono),
     '¿Evaluado?': (p.puntajeFinal !== null && p.puntajeFinal !== undefined) || p.estado === 'evaluado' ? 'Sí' : 'No',
     'Calificación': (p.puntajeFinal !== null && p.puntajeFinal !== undefined) ? p.puntajeFinal : '',
   }))
 
   const ws = XLSX.utils.json_to_sheet(filas)
-  ws['!cols'] = [{ wch: 5 }, { wch: 55 }, { wch: 22 }, { wch: 26 }, { wch: 18 }, { wch: 30 }, { wch: 45 }, { wch: 30 }, { wch: 12 }, { wch: 12 }]
+  ws['!cols'] = [{ wch: 5 }, { wch: 55 }, { wch: 22 }, { wch: 26 }, { wch: 18 }, { wch: 30 }, { wch: 45 }, { wch: 30 }, { wch: 16 }, { wch: 12 }, { wch: 12 }]
   const wb = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(wb, ws, 'Proyectos')
 
