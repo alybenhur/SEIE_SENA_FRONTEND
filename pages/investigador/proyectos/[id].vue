@@ -160,42 +160,6 @@
           </div>
         </div>
 
-        <!-- ── RESUMEN ── -->
-        <section class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mb-5">
-          <div class="px-6 py-3 border-b border-gray-100 bg-gray-50">
-            <h4 class="text-sm font-semibold text-gray-600">Resumen ejecutivo</h4>
-          </div>
-          <div class="px-6 py-4 text-sm text-gray-700 leading-relaxed whitespace-pre-line">{{ p.resumen }}</div>
-        </section>
-
-        <!-- ── CONTENIDO ACADÉMICO ── -->
-        <section class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mb-5">
-          <div class="px-6 py-4 border-b border-gray-100" style="background:linear-gradient(135deg,#b45309,#f59e0b)">
-            <h4 class="text-white font-semibold text-sm">Contenido Académico</h4>
-          </div>
-          <div class="divide-y divide-gray-50">
-            <template v-for="bloque in bloquesContenido" :key="bloque.key">
-              <div v-if="p[bloque.key]" class="px-6 py-4">
-                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{{ bloque.label }}</p>
-                <p class="text-sm text-gray-700 leading-relaxed whitespace-pre-line">{{ p[bloque.key] }}</p>
-              </div>
-            </template>
-            <!-- Objetivos específicos -->
-            <div v-if="p.objetivosEspecificos?.length" class="px-6 py-4">
-              <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Objetivos específicos</p>
-              <ol class="space-y-1.5">
-                <li v-for="(obj, i) in p.objetivosEspecificos" :key="i" class="flex gap-2 text-sm text-gray-700">
-                  <span class="w-5 h-5 flex-shrink-0 rounded-full bg-amber-100 text-amber-700 text-xs flex items-center justify-center font-bold mt-0.5">{{ i+1 }}</span>
-                  {{ obj }}
-                </li>
-              </ol>
-            </div>
-            <div v-if="!tieneContenido" class="px-6 py-6 text-center text-gray-400 text-sm">
-              No se registró contenido académico adicional.
-            </div>
-          </div>
-        </section>
-
         <!-- ── EQUIPO ── -->
         <section class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mb-5">
           <div class="px-6 py-4 border-b border-gray-100" style="background:linear-gradient(135deg,#7c3aed,#a78bfa)">
