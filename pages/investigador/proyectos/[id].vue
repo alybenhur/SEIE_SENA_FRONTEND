@@ -85,34 +85,26 @@
           </div>
 
           <!-- Datos rápidos -->
-          <div class="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y divide-gray-100">
+          <div class="grid grid-cols-2 sm:grid-cols-3 divide-x divide-y divide-gray-100">
             <div class="px-5 py-4">
               <p class="text-xs text-gray-400 mb-0.5">Evento</p>
               <p class="text-sm font-semibold text-gray-700">{{ p.eventoRef?.nombre || '—' }}</p>
             </div>
             <div class="px-5 py-4">
-              <p class="text-xs text-gray-400 mb-0.5">Línea de investigación</p>
+              <p class="text-xs text-gray-400 mb-0.5">Línea de trabajo</p>
               <p class="text-sm font-semibold text-gray-700">{{ p.lineaInvestigacion || '—' }}</p>
+            </div>
+            <div class="px-5 py-4">
+              <p class="text-xs text-gray-400 mb-0.5">Tipo de trabajo</p>
+              <p class="text-sm font-semibold text-gray-700">{{ modalidadLabels[p.modalidadParticipacion] || '—' }}</p>
+            </div>
+            <div class="px-5 py-4">
+              <p class="text-xs text-gray-400 mb-0.5">Regional</p>
+              <p class="text-sm font-semibold text-gray-700">{{ p.regional || '—' }}</p>
             </div>
             <div class="px-5 py-4">
               <p class="text-xs text-gray-400 mb-0.5">Institución</p>
               <p class="text-sm font-semibold text-gray-700 truncate" :title="p.institucion">{{ p.institucion || '—' }}</p>
-            </div>
-            <div class="px-5 py-4">
-              <p class="text-xs text-gray-400 mb-0.5">Semillero</p>
-              <p class="text-sm font-semibold text-gray-700">{{ p.semilleroNombre || p.semilleroRef?.nombre || '—' }}</p>
-            </div>
-            <div class="px-5 py-4">
-              <p class="text-xs text-gray-400 mb-0.5">Área</p>
-              <p class="text-sm font-semibold text-gray-700">{{ p.area || '—' }}</p>
-            </div>
-            <div class="px-5 py-4">
-              <p class="text-xs text-gray-400 mb-0.5">Programa académico</p>
-              <p class="text-sm font-semibold text-gray-700">{{ p.programaAcademico || '—' }}</p>
-            </div>
-            <div class="px-5 py-4">
-              <p class="text-xs text-gray-400 mb-0.5">Departamento / Municipio</p>
-              <p class="text-sm font-semibold text-gray-700">{{ [p.departamento, p.municipio].filter(Boolean).join(' / ') || '—' }}</p>
             </div>
             <div class="px-5 py-4">
               <p class="text-xs text-gray-400 mb-0.5">Fecha de registro</p>
@@ -308,6 +300,12 @@ const { get, del } = useApi()
 const p = ref<any>(null)
 const cargando = ref(true)
 const error = ref('')
+
+const modalidadLabels: Record<string, string> = {
+  poster: 'Póster o Cartel',
+  poster_prototipo: 'Póster y Prototipo',
+  ponencia: 'Conferencia o Ponencia',
+}
 
 // ── Eliminar ──
 const confirmarEliminar = ref(false)
