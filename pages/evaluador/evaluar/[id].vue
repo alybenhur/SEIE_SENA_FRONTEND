@@ -44,11 +44,11 @@
         </div>
 
         <div class="px-6 py-4 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1.5 text-sm">
-          <p><span class="text-gray-400 w-28 inline-block">Institución:</span><span class="text-gray-700">{{ proyecto.institucion || '—' }}</span></p>
-          <p><span class="text-gray-400 w-28 inline-block">Área:</span><span class="text-gray-700">{{ proyecto.area || '—' }}</span></p>
-          <p><span class="text-gray-400 w-28 inline-block">Categoría:</span><span class="text-gray-700 capitalize">{{ proyecto.categoria?.replace('_',' ') || '—' }}</span></p>
-          <p><span class="text-gray-400 w-28 inline-block">Semillero:</span><span class="text-gray-700">{{ proyecto.semilleroNombre || '—' }}</span></p>
-          <p><span class="text-gray-400 w-28 inline-block">Autor:</span><span class="text-gray-700">{{ proyecto.autorRef?.nombreCompleto || '—' }}</span></p>
+          <p><span class="text-gray-400 w-32 inline-block align-top">Institución:</span><span class="text-gray-700">{{ proyecto.institucion || '—' }}</span></p>
+          <p><span class="text-gray-400 w-32 inline-block align-top">Tipo de trabajo:</span><span class="text-gray-700">{{ modalidadLabels[proyecto.modalidadParticipacion] || '—' }}</span></p>
+          <p><span class="text-gray-400 w-32 inline-block align-top">Línea:</span><span class="text-gray-700">{{ proyecto.lineaInvestigacion || '—' }}</span></p>
+          <p><span class="text-gray-400 w-32 inline-block align-top">Regional:</span><span class="text-gray-700">{{ proyecto.regional || '—' }}</span></p>
+          <p class="sm:col-span-2"><span class="text-gray-400 w-32 inline-block align-top">Autores:</span><span class="text-gray-700">{{ autoresDe(proyecto) }}</span></p>
         </div>
 
         <!-- Resumen colapsable -->
@@ -207,6 +207,15 @@ const modalidadLabels: Record<string, string> = {
   poster: 'Póster o Cartel',
   poster_prototipo: 'Póster y Prototipo',
   ponencia: 'Conferencia o Ponencia',
+}
+
+// Todos los autores del proyecto (aprendices en autoresPrincipales; fallback al autor referenciado)
+function autoresDe(p: any): string {
+  const nombres = (p?.autoresPrincipales?.length
+    ? p.autoresPrincipales.map((a: any) => a?.nombreCompleto)
+    : [p?.autorRef?.nombreCompleto]
+  ).filter(Boolean)
+  return nombres.length ? nombres.join(', ') : '—'
 }
 
 // Carga la rúbrica oficial según la modalidad del proyecto.
