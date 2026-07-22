@@ -35,9 +35,9 @@
         </div>
       </NuxtLink>
 
-      <!-- Eventos -->
-      <NuxtLink to="/investigador/eventos"
-        class="group relative overflow-hidden rounded-2xl p-6 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+      <!-- Eventos (deshabilitado) -->
+      <div
+        class="group relative overflow-hidden rounded-2xl p-6 shadow-md opacity-60 cursor-not-allowed"
         style="background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #3b82f6 100%)">
         <div class="absolute -right-6 -top-6 w-32 h-32 rounded-full opacity-20 bg-white" />
         <div class="absolute -right-2 bottom-4 w-20 h-20 rounded-full opacity-10 bg-white" />
@@ -49,18 +49,18 @@
           </div>
           <h3 class="text-white font-bold text-lg mb-1">Eventos</h3>
           <p class="text-blue-100 text-sm leading-snug">Programación, cupos y consulta de eventos.</p>
-          <div class="mt-4 flex items-center gap-1 text-white/80 text-xs font-medium group-hover:text-white transition-colors">
-            Ver eventos
-            <svg class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+          <div class="mt-4 inline-flex items-center gap-1 text-white/70 text-xs font-medium">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
             </svg>
+            No disponible
           </div>
         </div>
-      </NuxtLink>
+      </div>
 
-      <!-- Histórico -->
-      <NuxtLink to="/investigador/historico"
-        class="group relative overflow-hidden rounded-2xl p-6 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+      <!-- Histórico (deshabilitado) -->
+      <div
+        class="group relative overflow-hidden rounded-2xl p-6 shadow-md opacity-60 cursor-not-allowed"
         style="background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 50%, #a78bfa 100%)">
         <div class="absolute -right-6 -top-6 w-32 h-32 rounded-full opacity-20 bg-white" />
         <div class="absolute -right-2 bottom-4 w-20 h-20 rounded-full opacity-10 bg-white" />
@@ -72,18 +72,18 @@
           </div>
           <h3 class="text-white font-bold text-lg mb-1">Histórico</h3>
           <p class="text-purple-100 text-sm leading-snug">Consulta de historial y trazabilidad.</p>
-          <div class="mt-4 flex items-center gap-1 text-white/80 text-xs font-medium group-hover:text-white transition-colors">
-            Ver historial
-            <svg class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+          <div class="mt-4 inline-flex items-center gap-1 text-white/70 text-xs font-medium">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
             </svg>
+            No disponible
           </div>
         </div>
-      </NuxtLink>
+      </div>
 
-      <!-- Certificados -->
-      <NuxtLink to="/investigador/certificados"
-        class="group relative overflow-hidden rounded-2xl p-6 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+      <!-- Certificados (deshabilitado) -->
+      <div
+        class="group relative overflow-hidden rounded-2xl p-6 shadow-md opacity-60 cursor-not-allowed"
         style="background: linear-gradient(135deg, #b45309 0%, #d97706 50%, #f59e0b 100%)">
         <div class="absolute -right-6 -top-6 w-32 h-32 rounded-full opacity-20 bg-white" />
         <div class="absolute -right-2 bottom-4 w-20 h-20 rounded-full opacity-10 bg-white" />
@@ -95,14 +95,14 @@
           </div>
           <h3 class="text-white font-bold text-lg mb-1">Certificados</h3>
           <p class="text-amber-100 text-sm leading-snug">Descarga de certificados cuando estén habilitados.</p>
-          <div class="mt-4 flex items-center gap-1 text-white/80 text-xs font-medium group-hover:text-white transition-colors">
-            Ver certificados
-            <svg class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+          <div class="mt-4 inline-flex items-center gap-1 text-white/70 text-xs font-medium">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
             </svg>
+            No disponible
           </div>
         </div>
-      </NuxtLink>
+      </div>
 
     </div>
   </NuxtLayout>
