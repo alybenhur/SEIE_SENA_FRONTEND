@@ -100,10 +100,11 @@
                 <p class="text-xs text-gray-500 mt-0.5">{{ criterio.descripcion }}</p>
               </div>
               <div class="flex items-center gap-1.5 shrink-0">
-                <input v-model.number="criterios[i].puntaje" type="number" min="0" max="20" step="1"
+                <input :value="criterios[i].puntaje" @input="setPuntaje(i, $event)" @blur="setPuntaje(i, $event)"
+                  type="number" min="0" :max="criterio.maxPuntaje" step="1"
                   class="w-16 text-center border border-gray-300 rounded-lg py-1.5 text-sm font-bold focus:ring-2 focus:ring-green-400 focus:outline-none transition-colors"
                   :class="criterios[i].puntaje >= 16 ? 'text-green-600 border-green-300' : criterios[i].puntaje >= 10 ? 'text-yellow-600 border-yellow-300' : criterios[i].puntaje > 0 ? 'text-red-500 border-red-300' : 'text-gray-400'" />
-                <span class="text-xs text-gray-400 font-medium">/20</span>
+                <span class="text-xs text-gray-400 font-medium">/{{ criterio.maxPuntaje }}</span>
               </div>
             </div>
             <textarea v-model="criterios[i].observacion" rows="2"
@@ -197,7 +198,7 @@ const observacionGeneral = ref('')
 const recomendaciones = ref('')
 const verResumen = ref(false)
 
-interface CriterioEval { nombre: string; descripcion: string; puntaje: number; observacion: string }
+interface CriterioEval { nombre: string; descripcion: string; puntaje: number; observacion: string; maxPuntaje: number }
 
 const rubrica = ref<any>(null)
 const criterios = ref<CriterioEval[]>([])
@@ -231,7 +232,26 @@ async function cargarRubrica(modalidad?: string) {
     descripcion: c.descripcion,
     puntaje: 0,
     observacion: '',
+    maxPuntaje: c.maxPuntaje ?? 20,
   }))
+}
+
+// Limita el puntaje ingresado al rango permitido [0, maxPuntaje] del criterio
+function setPuntaje(i: number, e: Event) {
+  const input = e.target as HTMLInputElement
+  const max = criterios.value[i].maxPuntaje ?? 20
+  // Campo vacío: mantener 0 en el modelo, normalizar al salir del campo
+  if (input.value === '') {
+    criterios.value[i].puntaje = 0
+    if (e.type === 'blur') input.value = '0'
+    return
+  }
+  let v = Math.floor(Number(input.value))
+  if (isNaN(v)) v = 0
+  v = Math.max(0, Math.min(max, v)) // no puede superar el máximo ni bajar de 0
+  criterios.value[i].puntaje = v
+  // Si el usuario escribió algo fuera de rango, reflejar el valor corregido
+  if (String(v) !== input.value) input.value = String(v)
 }
 
 const puntajeTotal = computed(() => criterios.value.reduce((s, c) => s + (c.puntaje || 0), 0))
