@@ -560,10 +560,11 @@ async function descargarExcel() {
     'Regional': limpiar(p.regional),
     'Instructor': limpiar(instructorDe(p)),
     'Autores': limpiar(autoresDe(p)),
+    'Evaluador': p.evaluadorRef?.nombreCompleto || 'Sin asignar',
   }))
 
   const ws = XLSX.utils.json_to_sheet(filas)
-  ws['!cols'] = [{ wch: 5 }, { wch: 55 }, { wch: 22 }, { wch: 26 }, { wch: 18 }, { wch: 30 }, { wch: 45 }]
+  ws['!cols'] = [{ wch: 5 }, { wch: 55 }, { wch: 22 }, { wch: 26 }, { wch: 18 }, { wch: 30 }, { wch: 45 }, { wch: 30 }]
   const wb = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(wb, ws, 'Proyectos')
 
