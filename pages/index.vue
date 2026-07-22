@@ -74,20 +74,6 @@
               </div>
             </div>
 
-            <!-- CTA -->
-            <div class="flex flex-wrap gap-3">
-              <NuxtLink to="/registro"
-                class="inline-flex items-center gap-2 px-6 py-3 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl transition-colors shadow-sm">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                </svg>
-                Registrarme ahora
-              </NuxtLink>
-              <NuxtLink to="/login"
-                class="inline-flex items-center gap-2 px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors">
-                Ya tengo cuenta
-              </NuxtLink>
-            </div>
           </div>
 
           <!-- Imagen / banner del evento -->
