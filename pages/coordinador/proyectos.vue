@@ -511,7 +511,7 @@ async function descargarPdf(p: any) {
     let y = 0
     const ensure = (need: number) => { if (y + need > H - 14) { doc.addPage(); y = 18 } }
 
-    // ── Cabecera: imagen del evento a la izquierda + nombre del evento ──
+    // ── Cabecera: imagen del evento a la izquierda + título y nombre del evento ──
     const bandH = 28
     doc.setFillColor(30, 92, 42); doc.rect(0, 0, W, bandH, 'F')
 
@@ -525,12 +525,11 @@ async function descargarPdf(p: any) {
     }
 
     const nombreEvento = p.eventoRef?.nombre || 'Encuentro Zonal de Semilleros de Investigación 2026'
-    doc.setTextColor(255); doc.setFont('helvetica', 'bold'); doc.setFontSize(13)
-    const et = doc.splitTextToSize(nombreEvento, W - textX - M)
-    const ty = et.length > 1 ? 10 : 13
-    doc.text(et, textX, ty)
+    doc.setTextColor(255); doc.setFont('helvetica', 'bold'); doc.setFontSize(15)
+    doc.text('Evaluación de proyecto', textX, 12)
     doc.setFont('helvetica', 'normal'); doc.setFontSize(9)
-    doc.text('Evaluación de proyecto', textX, ty + et.length * 5.5 + 1)
+    const et = doc.splitTextToSize(nombreEvento, W - textX - M)
+    doc.text(et, textX, 19)
     y = bandH + 8
 
     // Título
