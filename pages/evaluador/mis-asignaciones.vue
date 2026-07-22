@@ -60,28 +60,24 @@
 
             <div class="rounded-xl border border-gray-100 bg-gray-50/60 px-4 py-3 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
               <div class="flex gap-2">
-                <span class="text-gray-400 w-24 shrink-0">Institución</span>
+                <span class="text-gray-400 w-28 shrink-0">Institución</span>
                 <span class="text-gray-700 font-medium">{{ p.institucion || '—' }}</span>
               </div>
               <div class="flex gap-2">
-                <span class="text-gray-400 w-24 shrink-0">Área</span>
-                <span class="text-gray-700 font-medium">{{ p.area || '—' }}</span>
+                <span class="text-gray-400 w-28 shrink-0">Tipo de trabajo</span>
+                <span class="text-gray-700 font-medium">{{ modalidadLabels[p.modalidadParticipacion] || '—' }}</span>
               </div>
               <div class="flex gap-2">
-                <span class="text-gray-400 w-24 shrink-0">Categoría</span>
-                <span class="text-gray-700 font-medium capitalize">{{ p.categoria?.replace('_', ' ') || '—' }}</span>
+                <span class="text-gray-400 w-28 shrink-0">Línea</span>
+                <span class="text-gray-700 font-medium">{{ p.lineaInvestigacion || '—' }}</span>
               </div>
               <div class="flex gap-2">
-                <span class="text-gray-400 w-24 shrink-0">Semillero</span>
-                <span class="text-gray-700 font-medium">{{ p.semilleroNombre || p.semilleroRef?.nombre || '—' }}</span>
+                <span class="text-gray-400 w-28 shrink-0">Regional</span>
+                <span class="text-gray-700 font-medium">{{ p.regional || '—' }}</span>
               </div>
-              <div class="flex gap-2">
-                <span class="text-gray-400 w-24 shrink-0">Autor</span>
-                <span class="text-gray-700 font-medium">{{ p.autorRef?.nombreCompleto || '—' }}</span>
-              </div>
-              <div v-if="p.lineaInvestigacion" class="flex gap-2">
-                <span class="text-gray-400 w-24 shrink-0">Línea</span>
-                <span class="text-gray-700 font-medium">{{ p.lineaInvestigacion }}</span>
+              <div class="flex gap-2 sm:col-span-2">
+                <span class="text-gray-400 w-28 shrink-0">Autores</span>
+                <span class="text-gray-700 font-medium">{{ autoresDe(p) }}</span>
               </div>
             </div>
           </div>
@@ -190,6 +186,21 @@ const { get } = useApi()
 const proyectos = ref<any[]>([])
 const cargando = ref(true)
 const detalleAbierto = ref<string | null>(null)
+
+const modalidadLabels: Record<string, string> = {
+  poster: 'Póster o Cartel',
+  poster_prototipo: 'Póster y Prototipo',
+  ponencia: 'Conferencia o Ponencia',
+}
+
+// Todos los autores del proyecto (aprendices en autoresPrincipales; fallback al autor referenciado)
+function autoresDe(p: any): string {
+  const nombres = (p?.autoresPrincipales?.length
+    ? p.autoresPrincipales.map((a: any) => a?.nombreCompleto)
+    : [p?.autorRef?.nombreCompleto]
+  ).filter(Boolean)
+  return nombres.length ? nombres.join(', ') : '—'
+}
 
 function toggleDetalle(id: string) {
   detalleAbierto.value = detalleAbierto.value === id ? null : id
