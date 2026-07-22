@@ -141,6 +141,27 @@
             </div>
           </div>
 
+          <!-- Nota de evaluación + descarga de rúbrica en PDF -->
+          <div v-if="p.puntajeFinal !== null && p.puntajeFinal !== undefined"
+            class="flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-3"
+            :class="p.puntajeFinal >= 70 ? 'bg-green-50 border-green-200' : p.puntajeFinal >= 50 ? 'bg-yellow-50 border-yellow-200' : 'bg-red-50 border-red-200'">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-semibold uppercase tracking-wide text-gray-500">Nota de evaluación</span>
+              <span class="text-2xl font-black leading-none"
+                :class="p.puntajeFinal >= 70 ? 'text-green-700' : p.puntajeFinal >= 50 ? 'text-yellow-600' : 'text-red-500'">
+                {{ p.puntajeFinal }}<span class="text-sm font-normal text-gray-400">/100</span>
+              </span>
+            </div>
+            <button @click="descargarPdf(p)" :disabled="pdfCargando === p._id"
+              class="inline-flex items-center gap-1.5 text-sm font-semibold text-white px-3 py-2 rounded-lg transition-colors disabled:opacity-50 hover:brightness-110"
+              style="background:#374151">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+              </svg>
+              {{ pdfCargando === p._id ? 'Generando...' : 'Descargar PDF' }}
+            </button>
+          </div>
+
           <!-- Botón ver detalle -->
           <button @click="toggleDetalle(p._id)"
             class="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-green-700 hover:text-green-900 transition-colors select-none group">
@@ -445,6 +466,115 @@ async function descargarExcel() {
     ? (filtroModalidad.value === 'sin' ? 'Sin asignar' : (modalidadLabels[filtroModalidad.value] || filtroModalidad.value))
     : 'Todos'
   XLSX.writeFile(wb, `Proyectos - ${sufijo}.xlsx`)
+}
+
+const pdfCargando = ref<string | null>(null)
+
+// Descarga un PDF con la rúbrica completa de evaluación del proyecto y sus valores
+async function descargarPdf(p: any) {
+  pdfCargando.value = p._id
+  try {
+    const [{ jsPDF }, autoTableMod] = await Promise.all([
+      import('jspdf'),
+      import('jspdf-autotable'),
+    ])
+    const autoTable = (autoTableMod as any).default
+    const evals = (await get<any[]>(`/evaluaciones/proyecto/${p._id}`)) ?? []
+    const enviadas = evals.filter((e: any) => e.estado === 'enviada')
+    const lista = enviadas.length ? enviadas : evals
+
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' })
+    const W = doc.internal.pageSize.getWidth()
+    const H = doc.internal.pageSize.getHeight()
+    const M = 14
+    let y = 0
+    const ensure = (need: number) => { if (y + need > H - 14) { doc.addPage(); y = 18 } }
+
+    // Cabecera
+    doc.setFillColor(30, 92, 42); doc.rect(0, 0, W, 24, 'F')
+    doc.setTextColor(255); doc.setFont('helvetica', 'bold'); doc.setFontSize(14)
+    doc.text('Evaluación de proyecto', M, 11)
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9)
+    doc.text('Encuentro Zonal de Semilleros de Investigación 2026', M, 18)
+    y = 32
+
+    // Título
+    doc.setTextColor(20); doc.setFont('helvetica', 'bold'); doc.setFontSize(12)
+    const tit = doc.splitTextToSize(p.titulo || '', W - 2 * M)
+    doc.text(tit, M, y); y += tit.length * 6 + 3
+
+    // Información del proyecto
+    doc.setFontSize(9)
+    const info: [string, string][] = [
+      ['Modalidad', modalidadLabels[p.modalidadParticipacion] || '—'],
+      ['Línea de investigación', p.lineaInvestigacion || '—'],
+      ['Regional', p.regional || '—'],
+      ['Institución', p.institucion || '—'],
+      ['Instructor', instructorDe(p)],
+      ['Autores', autoresDe(p)],
+    ]
+    for (const [k, v] of info) {
+      doc.setFont('helvetica', 'bold'); const kl = `${k}: `; const kw = doc.getTextWidth(kl)
+      doc.text(kl, M, y)
+      doc.setFont('helvetica', 'normal')
+      const vt = doc.splitTextToSize(String(v), W - 2 * M - kw)
+      doc.text(vt, M + kw, y)
+      y += Math.max(vt.length, 1) * 5
+    }
+    y += 3
+
+    // Nota final
+    ensure(10)
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(12); doc.setTextColor(30, 92, 42)
+    doc.text(`Nota final del proyecto: ${p.puntajeFinal ?? '—'} / 100`, M, y)
+    doc.setTextColor(20); y += 8
+
+    if (!lista.length) {
+      doc.setFont('helvetica', 'italic'); doc.setFontSize(10)
+      doc.text('Este proyecto aún no tiene evaluaciones registradas.', M, y)
+    }
+
+    for (const ev of lista) {
+      ensure(20)
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(10)
+      doc.text(`Evaluador: ${ev.evaluadorRef?.nombreCompleto || '—'}`, M, y); y += 2
+
+      autoTable(doc, {
+        startY: y + 2,
+        head: [['Criterio', 'Puntaje', 'Observación']],
+        body: (ev.criterios || []).map((c: any) => [c.nombre, `${c.puntaje}`, c.observacion || '']),
+        styles: { fontSize: 8, cellPadding: 2, valign: 'top' },
+        headStyles: { fillColor: [30, 92, 42], textColor: 255 },
+        columnStyles: { 1: { halign: 'center', cellWidth: 20 }, 2: { cellWidth: 85 } },
+        margin: { left: M, right: M },
+      })
+      y = (doc as any).lastAutoTable.finalY + 6
+
+      ensure(8)
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(10)
+      doc.text(`Puntaje total: ${ev.puntajeTotal ?? 0} / 100`, M, y); y += 7
+
+      if (ev.observacionGeneral) {
+        const t = doc.splitTextToSize(ev.observacionGeneral, W - 2 * M)
+        ensure(6 + t.length * 5)
+        doc.setFont('helvetica', 'bold'); doc.text('Observación general:', M, y); y += 5
+        doc.setFont('helvetica', 'normal'); doc.text(t, M, y); y += t.length * 5 + 2
+      }
+      if (ev.recomendaciones) {
+        const t = doc.splitTextToSize(ev.recomendaciones, W - 2 * M)
+        ensure(6 + t.length * 5)
+        doc.setFont('helvetica', 'bold'); doc.text('Recomendaciones:', M, y); y += 5
+        doc.setFont('helvetica', 'normal'); doc.text(t, M, y); y += t.length * 5 + 2
+      }
+      y += 4
+    }
+
+    doc.save(`Evaluacion - ${(p.titulo || 'proyecto').substring(0, 40)}.pdf`)
+  } catch (e) {
+    console.error('Error al generar PDF:', e)
+  } finally {
+    pdfCargando.value = null
+  }
 }
 
 function toggleDetalle(id: string) {
