@@ -23,6 +23,14 @@
           Evento: <strong>{{ miEvento?.nombre ?? miEvento }}</strong>
         </p>
         <p v-else class="text-sm text-red-500 mt-0.5">⚠ No tienes un evento asignado.</p>
+        <button @click="abrirAleatorio"
+          class="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-white px-4 py-2 rounded-lg transition-all hover:brightness-110 shadow-sm"
+          style="background: linear-gradient(90deg,#6d28d9,#8b5cf6)">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+          </svg>
+          Asignar evaluadores aleatoriamente
+        </button>
       </div>
       <div class="flex flex-wrap items-center gap-2">
         <select v-model="filtroModalidad"
@@ -351,13 +359,97 @@
       </div>
     </div>
 
+    <!-- ── Modal: asignación aleatoria de evaluadores ── -->
+    <div v-if="modalAleatorio" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
+      <div class="bg-white rounded-2xl shadow-xl w-full max-w-3xl max-h-[85vh] flex flex-col overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between" style="background: linear-gradient(90deg,#6d28d9,#8b5cf6)">
+          <h3 class="text-white font-bold">Asignación aleatoria de evaluadores</h3>
+          <button @click="modalAleatorio = false" class="text-white/80 hover:text-white text-xl leading-none">&times;</button>
+        </div>
+
+        <div class="px-6 py-4 overflow-y-auto">
+          <p class="text-xs text-gray-500 mb-3">
+            Regla: un evaluador no puede evaluar un proyecto de su misma <strong>regional</strong>. Todos los
+            evaluadores quedan con al menos un proyecto; solo si hay más proyectos que evaluadores alguien recibe un segundo.
+          </p>
+
+          <div v-if="cargandoPreview" class="text-center py-10 text-gray-400 text-sm">Generando propuesta...</div>
+
+          <div v-else-if="errorAleatorio" class="px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">
+            {{ errorAleatorio }}
+          </div>
+
+          <template v-else-if="previewAleatorio">
+            <!-- Resumen -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+              <div class="bg-gray-50 rounded-xl px-3 py-2 text-center">
+                <p class="text-2xl font-black text-gray-800">{{ previewAleatorio.resumen.asignados }}</p>
+                <p class="text-xs text-gray-500">Asignados</p>
+              </div>
+              <div class="bg-gray-50 rounded-xl px-3 py-2 text-center">
+                <p class="text-2xl font-black text-gray-800">{{ previewAleatorio.resumen.evaluadoresConProyecto }}</p>
+                <p class="text-xs text-gray-500">Evaluadores</p>
+              </div>
+              <div class="bg-gray-50 rounded-xl px-3 py-2 text-center">
+                <p class="text-2xl font-black text-gray-800">{{ previewAleatorio.resumen.minPorEvaluador }}–{{ previewAleatorio.resumen.maxPorEvaluador }}</p>
+                <p class="text-xs text-gray-500">Proy. por evaluador</p>
+              </div>
+              <div class="rounded-xl px-3 py-2 text-center" :class="previewAleatorio.resumen.sinAsignar ? 'bg-red-50' : 'bg-green-50'">
+                <p class="text-2xl font-black" :class="previewAleatorio.resumen.sinAsignar ? 'text-red-600' : 'text-green-600'">{{ previewAleatorio.resumen.sinAsignar }}</p>
+                <p class="text-xs text-gray-500">Sin asignar</p>
+              </div>
+            </div>
+
+            <!-- Sin asignar (si los hay) -->
+            <div v-if="previewAleatorio.sinAsignar.length" class="mb-3 px-4 py-2 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-700">
+              Proyectos sin evaluador elegible: {{ previewAleatorio.sinAsignar.map((s:any)=>s.titulo).join(', ') }}
+            </div>
+
+            <!-- Tabla de propuesta -->
+            <div class="border border-gray-100 rounded-xl overflow-hidden">
+              <table class="w-full text-xs">
+                <thead class="bg-gray-50 text-gray-500">
+                  <tr>
+                    <th class="text-left px-3 py-2 font-semibold">Proyecto</th>
+                    <th class="text-left px-3 py-2 font-semibold">Reg.</th>
+                    <th class="text-left px-3 py-2 font-semibold">Evaluador</th>
+                    <th class="text-left px-3 py-2 font-semibold">Reg.</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
+                  <tr v-for="(a, i) in previewAleatorio.asignaciones" :key="i" class="hover:bg-gray-50">
+                    <td class="px-3 py-1.5 text-gray-700">{{ a.titulo }}</td>
+                    <td class="px-3 py-1.5 text-gray-400">{{ a.regionalProyecto || '—' }}</td>
+                    <td class="px-3 py-1.5 text-gray-700 font-medium">{{ a.evaluadorNombre }}</td>
+                    <td class="px-3 py-1.5 text-gray-400">{{ a.regionalEvaluador || '—' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </template>
+        </div>
+
+        <div class="px-6 py-4 border-t border-gray-100 flex flex-wrap justify-end gap-2">
+          <button @click="modalAleatorio = false" class="px-4 py-2 rounded-lg text-sm font-semibold text-gray-600 hover:bg-gray-100">Cancelar</button>
+          <button @click="generarPreview" :disabled="cargandoPreview || aplicandoAleatorio"
+            class="px-4 py-2 rounded-lg text-sm font-semibold text-purple-700 border border-purple-200 hover:bg-purple-50 disabled:opacity-50">
+            Regenerar
+          </button>
+          <button @click="confirmarAleatorio" :disabled="cargandoPreview || aplicandoAleatorio || !previewAleatorio || !previewAleatorio.asignaciones.length"
+            class="px-4 py-2 rounded-lg text-sm font-semibold text-white disabled:opacity-50" style="background: linear-gradient(90deg,#6d28d9,#8b5cf6)">
+            {{ aplicandoAleatorio ? 'Aplicando...' : 'Confirmar y guardar' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
   </NuxtLayout>
 </template>
 
 <script setup lang="ts">
 definePageMeta({ roles: ['coordinador'] })
 
-const { get, patch } = useApi()
+const { get, patch, post } = useApi()
 
 const proyectos = ref<any[]>([])
 const miEvento = ref<any>(null)
@@ -571,25 +663,71 @@ async function confirmarAsignacion(id: string) {
   }
 }
 
+async function cargarProyectos() {
+  const perfil = await get<any>('/usuarios/me')
+  miEvento.value = perfil?.eventoRef ?? null
+  if (!miEvento.value) {
+    errorCarga.value = 'No tienes un evento asignado. Contacta al administrador.'
+    return
+  }
+  const eventoId = typeof miEvento.value === 'object'
+    ? String((miEvento.value as any)._id)
+    : String(miEvento.value)
+
+  const todos = await get<any[]>('/proyectos') ?? []
+  proyectos.value = todos.filter((p: any) => {
+    const pEvId = typeof p.eventoRef === 'object' ? String(p.eventoRef?._id ?? p.eventoRef) : String(p.eventoRef)
+    return pEvId === eventoId
+  })
+  debugInfo.value = `eventoId: ${eventoId} | total BD: ${todos.length} | este evento: ${proyectos.value.length}`
+}
+
+// ── Asignación aleatoria de evaluadores ──
+const modalAleatorio = ref(false)
+const cargandoPreview = ref(false)
+const aplicandoAleatorio = ref(false)
+const previewAleatorio = ref<any>(null)
+const errorAleatorio = ref('')
+
+async function generarPreview() {
+  cargandoPreview.value = true
+  errorAleatorio.value = ''
+  try {
+    previewAleatorio.value = await post<any>('/proyectos/asignar-evaluadores-aleatorio', { apply: false })
+  } catch (e: any) {
+    errorAleatorio.value = e?.data?.message || 'No se pudo generar la propuesta.'
+  } finally {
+    cargandoPreview.value = false
+  }
+}
+
+function abrirAleatorio() {
+  modalAleatorio.value = true
+  previewAleatorio.value = null
+  errorAleatorio.value = ''
+  generarPreview()
+}
+
+async function confirmarAleatorio() {
+  aplicandoAleatorio.value = true
+  errorAleatorio.value = ''
+  try {
+    await post('/proyectos/asignar-evaluadores-aleatorio', { apply: true })
+    modalAleatorio.value = false
+    cargando.value = true
+    await cargarProyectos()
+    cargando.value = false
+  } catch (e: any) {
+    errorAleatorio.value = e?.data?.message || 'No se pudo aplicar la asignación.'
+  } finally {
+    aplicandoAleatorio.value = false
+  }
+}
+
 onMounted(async () => {
   if (!localStorage.getItem('token')) { navigateTo('/login'); return }
   try {
-    const perfil = await get<any>('/usuarios/me')
-    miEvento.value = perfil?.eventoRef ?? null
-    if (!miEvento.value) {
-      errorCarga.value = 'No tienes un evento asignado. Contacta al administrador.'
-      return
-    }
-    const eventoId = typeof miEvento.value === 'object'
-      ? String((miEvento.value as any)._id)
-      : String(miEvento.value)
-
-    const todos = await get<any[]>('/proyectos') ?? []
-    proyectos.value = todos.filter((p: any) => {
-      const pEvId = typeof p.eventoRef === 'object' ? String(p.eventoRef?._id ?? p.eventoRef) : String(p.eventoRef)
-      return pEvId === eventoId
-    })
-    debugInfo.value = `eventoId: ${eventoId} | total BD: ${todos.length} | este evento: ${proyectos.value.length}`
+    await cargarProyectos()
   } catch (e: any) {
     errorCarga.value = e?.data?.message || e?.message || 'Error al cargar los proyectos.'
   } finally {
