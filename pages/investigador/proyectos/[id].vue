@@ -111,6 +111,26 @@
               <p class="text-sm font-semibold text-gray-700">{{ fechaFormato(p.createdAt) }}</p>
             </div>
           </div>
+
+          <!-- Nota + descarga de la rúbrica de evaluación (si ya fue evaluado) -->
+          <div v-if="p.puntajeFinal !== null && p.puntajeFinal !== undefined"
+            class="px-6 py-4 border-t border-gray-100 flex flex-wrap items-center justify-between gap-3 bg-gray-50/60">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-semibold uppercase tracking-wide text-gray-500">Nota de evaluación</span>
+              <span class="text-xl font-black leading-none"
+                :class="p.puntajeFinal >= 70 ? 'text-teal-700' : p.puntajeFinal >= 50 ? 'text-yellow-600' : 'text-red-500'">
+                {{ p.puntajeFinal }}<span class="text-sm font-normal text-gray-400">/100</span>
+              </span>
+            </div>
+            <button @click="descargarRubricaPdf(p)" :disabled="generandoPdf === p._id"
+              class="inline-flex items-center gap-1.5 text-sm font-semibold text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50 hover:brightness-110"
+              style="background:#0f766e">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+              </svg>
+              {{ generandoPdf === p._id ? 'Generando...' : 'Descargar rúbrica de evaluación' }}
+            </button>
+          </div>
         </div>
 
         <!-- ── DOCUMENTO ── -->
@@ -265,11 +285,7 @@ const p = ref<any>(null)
 const cargando = ref(true)
 const error = ref('')
 
-const modalidadLabels: Record<string, string> = {
-  poster: 'Póster o Cartel',
-  poster_prototipo: 'Póster y Prototipo',
-  ponencia: 'Conferencia o Ponencia',
-}
+const { descargarRubricaPdf, generandoPdf, modalidadLabels } = useRubricaPdf()
 
 // ── Eliminar ──
 const confirmarEliminar = ref(false)
