@@ -53,6 +53,10 @@
           <option value="evaluado">Evaluados</option>
           <option value="aprobado">Aprobados</option>
         </select>
+        <span class="inline-flex items-baseline gap-1 px-3 py-2 rounded-lg text-sm font-semibold bg-gray-100 text-gray-700 border border-gray-200 whitespace-nowrap">
+          <span class="text-base font-black text-green-700">{{ conteoEstadoSeleccionado }}</span>
+          <span class="text-xs font-normal text-gray-500">{{ filtroEstado ? etiquetaEstado(filtroEstado) : 'en total' }}</span>
+        </span>
         <button @click="descargarExcel" :disabled="!proyectosFiltrados.length"
           class="inline-flex items-center gap-1.5 text-sm font-semibold text-white px-3 py-2 rounded-lg transition-colors disabled:opacity-50 hover:brightness-95"
           style="background: linear-gradient(90deg,#1e5c2a,#2d8a3e)"
@@ -498,6 +502,15 @@ const proyectosFiltrados = computed(() =>
     (!filtroEstado.value || p.estado === filtroEstado.value) && coincideModalidad(p)
   )
 )
+
+// Contador de proyectos según el filtro actual (respeta estado + modalidad)
+const conteoEstadoSeleccionado = computed(() => proyectosFiltrados.value.length)
+const estadoLabels: Record<string, string> = {
+  enviado: 'enviados', aceptado: 'aceptados', rechazado: 'rechazados',
+  evaluador_asignado: 'con evaluador', sustentando: 'sustentando',
+  en_evaluacion: 'en evaluación', evaluado: 'evaluados', aprobado: 'aprobados',
+}
+function etiquetaEstado(e: string) { return estadoLabels[e] || e }
 
 // Contador de trabajos por modalidad (sobre el total, no sobre el filtro)
 const conteoModalidad = computed(() => {
