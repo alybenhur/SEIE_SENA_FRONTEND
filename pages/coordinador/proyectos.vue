@@ -470,6 +470,27 @@ async function descargarExcel() {
 
 const pdfCargando = ref<string | null>(null)
 
+// Imagen del evento para el encabezado del PDF (Cloudinary, redimensionada para peso)
+const EVENTO_IMG_URL = 'https://res.cloudinary.com/dsdfju4il/image/upload/w_400,q_auto/v1780266830/investigacion/sa1uchvx8h9p7nsmwksz.jpg'
+
+// Carga una imagen (URL con CORS) y la convierte a dataURL para incrustarla en el PDF
+function loadImagen(src: string): Promise<{ dataUrl: string; w: number; h: number } | null> {
+  return new Promise((resolve) => {
+    const img = new Image()
+    img.crossOrigin = 'anonymous'
+    img.onload = () => {
+      try {
+        const c = document.createElement('canvas')
+        c.width = img.naturalWidth; c.height = img.naturalHeight
+        c.getContext('2d')!.drawImage(img, 0, 0)
+        resolve({ dataUrl: c.toDataURL('image/jpeg', 0.9), w: img.naturalWidth, h: img.naturalHeight })
+      } catch { resolve(null) }
+    }
+    img.onerror = () => resolve(null)
+    img.src = src
+  })
+}
+
 // Descarga un PDF con la rúbrica completa de evaluación del proyecto y sus valores
 async function descargarPdf(p: any) {
   pdfCargando.value = p._id
@@ -490,13 +511,27 @@ async function descargarPdf(p: any) {
     let y = 0
     const ensure = (need: number) => { if (y + need > H - 14) { doc.addPage(); y = 18 } }
 
-    // Cabecera
-    doc.setFillColor(30, 92, 42); doc.rect(0, 0, W, 24, 'F')
-    doc.setTextColor(255); doc.setFont('helvetica', 'bold'); doc.setFontSize(14)
-    doc.text('Evaluación de proyecto', M, 11)
+    // ── Cabecera: imagen del evento a la izquierda + nombre del evento ──
+    const bandH = 28
+    doc.setFillColor(30, 92, 42); doc.rect(0, 0, W, bandH, 'F')
+
+    let textX = M
+    const logo = await loadImagen(EVENTO_IMG_URL)
+    if (logo) {
+      const imgH = bandH - 6
+      const imgW = Math.min(imgH * (logo.w / logo.h), 34)
+      doc.addImage(logo.dataUrl, 'JPEG', M, 3, imgW, imgH)
+      textX = M + imgW + 5
+    }
+
+    const nombreEvento = p.eventoRef?.nombre || 'Encuentro Zonal de Semilleros de Investigación 2026'
+    doc.setTextColor(255); doc.setFont('helvetica', 'bold'); doc.setFontSize(13)
+    const et = doc.splitTextToSize(nombreEvento, W - textX - M)
+    const ty = et.length > 1 ? 10 : 13
+    doc.text(et, textX, ty)
     doc.setFont('helvetica', 'normal'); doc.setFontSize(9)
-    doc.text('Encuentro Zonal de Semilleros de Investigación 2026', M, 18)
-    y = 32
+    doc.text('Evaluación de proyecto', textX, ty + et.length * 5.5 + 1)
+    y = bandH + 8
 
     // Título
     doc.setTextColor(20); doc.setFont('helvetica', 'bold'); doc.setFontSize(12)
