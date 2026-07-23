@@ -33,6 +33,18 @@
         </button>
       </div>
       <div class="flex flex-wrap items-center gap-2">
+        <!-- Buscador por nombre de proyecto (filtra mientras se escribe) -->
+        <div class="relative">
+          <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z" />
+          </svg>
+          <input v-model="busquedaNombre" type="text" placeholder="Buscar por nombre de proyecto..."
+            class="text-sm border border-gray-300 rounded-lg pl-9 pr-8 py-2 bg-white w-64 focus:outline-none focus:ring-2 focus:ring-green-300" />
+          <button v-if="busquedaNombre" @click="busquedaNombre = ''" type="button"
+            class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" title="Limpiar">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+          </button>
+        </div>
         <select v-model="filtroModalidad"
           class="text-sm border border-gray-300 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-green-300">
           <option value="">Todas las modalidades</option>
@@ -55,7 +67,7 @@
         </select>
         <span class="inline-flex items-baseline gap-1 px-3 py-2 rounded-lg text-sm font-semibold bg-gray-100 text-gray-700 border border-gray-200 whitespace-nowrap">
           <span class="text-base font-black text-green-700">{{ conteoEstadoSeleccionado }}</span>
-          <span class="text-xs font-normal text-gray-500">{{ filtroEstado ? etiquetaEstado(filtroEstado) : 'en total' }}</span>
+          <span class="text-xs font-normal text-gray-500">{{ busquedaNombre.trim() ? 'encontrados' : (filtroEstado ? etiquetaEstado(filtroEstado) : 'en total') }}</span>
         </span>
         <button @click="descargarExcel" :disabled="!proyectosFiltrados.length"
           class="inline-flex items-center gap-1.5 text-sm font-semibold text-white px-3 py-2 rounded-lg transition-colors disabled:opacity-50 hover:brightness-95"
@@ -459,6 +471,7 @@ const proyectos = ref<any[]>([])
 const miEvento = ref<any>(null)
 const filtroEstado = ref('enviado')
 const filtroModalidad = ref('')
+const busquedaNombre = ref('')
 
 const modalidadLabels: Record<string, string> = {
   poster: 'Póster o Cartel',
@@ -497,11 +510,20 @@ const coincideModalidad = (p: any) => {
   return p.modalidadParticipacion === filtroModalidad.value
 }
 
-const proyectosFiltrados = computed(() =>
-  proyectos.value.filter(p =>
-    (!filtroEstado.value || p.estado === filtroEstado.value) && coincideModalidad(p)
-  )
-)
+// Normaliza texto para búsqueda: sin acentos y en minúsculas
+const normalizarTexto = (t: any) =>
+  String(t ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+
+const proyectosFiltrados = computed(() => {
+  const q = normalizarTexto(busquedaNombre.value.trim())
+  return proyectos.value.filter(p => {
+    if (!coincideModalidad(p)) return false
+    // Con texto de búsqueda: coincidencia parcial por nombre, en cualquier estado.
+    if (q) return normalizarTexto(p.titulo).includes(q)
+    // Sin búsqueda: se respeta el filtro por estado.
+    return !filtroEstado.value || p.estado === filtroEstado.value
+  })
+})
 
 // Contador de proyectos según el filtro actual (respeta estado + modalidad)
 const conteoEstadoSeleccionado = computed(() => proyectosFiltrados.value.length)
