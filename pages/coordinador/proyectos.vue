@@ -298,6 +298,13 @@
                 </svg>
                 En sustentación
               </span>
+              <button @click.stop="iniciarAccion(p._id, 'asignar_evaluador')"
+                class="action-btn action-btn-ghost">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                </svg>
+                Cambiar evaluador
+              </button>
             </template>
 
             <span v-else-if="p.estado === 'rechazado'"
@@ -686,10 +693,11 @@ async function confirmarAsignacion(id: string) {
   }
   procesando.value = true
   try {
-    await patch(`/proyectos/${id}/asignar-evaluador`, { evaluadorId: evaluadorSeleccionado.value })
+    const actualizado = await patch<any>(`/proyectos/${id}/asignar-evaluador`, { evaluadorId: evaluadorSeleccionado.value })
     const idx = proyectos.value.findIndex(p => p._id === id)
     if (idx !== -1) {
-      proyectos.value[idx].estado = 'evaluador_asignado'
+      // Respeta el estado real devuelto (sustentando se conserva; aceptado pasa a evaluador_asignado)
+      proyectos.value[idx].estado = actualizado?.estado ?? proyectos.value[idx].estado
       const ev = evaluadoresDisponibles.value.find(e => e._id === evaluadorSeleccionado.value)
       proyectos.value[idx].evaluadorRef = ev ?? { _id: evaluadorSeleccionado.value, nombreCompleto: '—' }
     }
