@@ -21,8 +21,11 @@
           </div>
           <div>
             <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Regional</label>
-            <input v-model.trim="form.regional" type="text" placeholder="Ej. Antioquia"
-              class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400" />
+            <select v-model="form.regional"
+              class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white">
+              <option value="">— Selecciona una regional —</option>
+              <option v-for="r in regionales" :key="r" :value="r">{{ r }}</option>
+            </select>
           </div>
           <div>
             <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Centro de formación</label>
@@ -125,6 +128,14 @@
 definePageMeta({ roles: ['coordinador'] })
 
 const { post } = useApi()
+
+// Regionales que ya se manejan en el sistema (lista depurada, sin duplicados por acento)
+const regionales = [
+  'Antioquia', 'Atlántico', 'Bolívar', 'Boyacá', 'Caldas', 'Cesar', 'Chocó',
+  'Córdoba', 'Cundinamarca', 'Distrito Capital', 'Guaviare', 'Huila', 'La Guajira',
+  'Magdalena', 'Nariño', 'Norte de Santander', 'Quindío', 'Risaralda', 'Santander',
+  'Tolima', 'Valle del Cauca',
+]
 
 function autorVacio() { return { nombreCompleto: '', documento: '', telefono: '', email: '' } }
 
