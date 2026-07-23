@@ -145,14 +145,30 @@
           </a>
           <span v-else class="text-xs text-gray-400 italic">Sin documento adjunto</span>
 
-          <!-- Evaluado -->
-          <span v-if="p.estado === 'evaluado'"
-            class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-purple-100 text-purple-700 border border-purple-200">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-            </svg>
-            Evaluación completada
-          </span>
+          <!-- Evaluado: nota + descarga de rúbrica -->
+          <div v-if="p.estado === 'evaluado'" class="flex flex-wrap items-center gap-2">
+            <span class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-purple-100 text-purple-700 border border-purple-200">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+              </svg>
+              Evaluación completada
+            </span>
+            <!-- Nota final -->
+            <span v-if="p.puntajeFinal !== null && p.puntajeFinal !== undefined"
+              class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold border"
+              :class="p.puntajeFinal >= 70 ? 'bg-green-50 text-green-700 border-green-200' : p.puntajeFinal >= 50 ? 'bg-yellow-50 text-yellow-700 border-yellow-200' : 'bg-red-50 text-red-600 border-red-200'">
+              Nota: {{ p.puntajeFinal }}<span class="text-xs font-normal text-gray-400">/100</span>
+            </span>
+            <!-- Descargar PDF de la rúbrica con los valores obtenidos -->
+            <button @click="descargarRubricaPdf(p)" :disabled="generandoPdf === p._id"
+              class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all hover:shadow-md disabled:opacity-60"
+              style="background: linear-gradient(90deg,#1e5c2a,#2d8a3e)">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+              </svg>
+              {{ generandoPdf === p._id ? 'Generando...' : 'Descargar PDF' }}
+            </button>
+          </div>
 
           <!-- Sustentando → puede evaluar -->
           <NuxtLink v-else-if="p.estado === 'sustentando'" :to="`/evaluador/evaluar/${p._id}`"
@@ -183,6 +199,7 @@
 definePageMeta({ roles: ['evaluador'] })
 
 const { get } = useApi()
+const { descargarRubricaPdf, generandoPdf } = useRubricaPdf()
 const proyectos = ref<any[]>([])
 const cargando = ref(true)
 const detalleAbierto = ref<string | null>(null)
