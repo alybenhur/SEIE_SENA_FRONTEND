@@ -70,6 +70,26 @@
             <span>Proyectos</span>
           </NuxtLink>
 
+          <!-- Consultar usuario -->
+          <NuxtLink to="/coordinador/usuario"
+            class="nav-pill"
+            :class="$route.path.startsWith('/coordinador/usuario') ? 'nav-pill-active' : 'nav-pill-idle'">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z" />
+            </svg>
+            <span>Consultar usuario</span>
+          </NuxtLink>
+
+          <!-- Crear proyecto -->
+          <NuxtLink to="/coordinador/crear"
+            class="nav-pill"
+            :class="$route.path.startsWith('/coordinador/crear') ? 'nav-pill-active' : 'nav-pill-idle'">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            <span>Crear proyecto</span>
+          </NuxtLink>
+
           <!-- Separador -->
           <div class="w-px h-5 bg-gray-300 mx-1"></div>
 
